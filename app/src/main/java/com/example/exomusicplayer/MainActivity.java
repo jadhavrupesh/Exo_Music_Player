@@ -101,9 +101,6 @@ public class MainActivity extends AppCompatActivity implements ExoPlayer.EventLi
 
     }
 
-
-
-
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
 
