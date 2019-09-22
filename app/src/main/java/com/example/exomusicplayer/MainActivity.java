@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -32,9 +31,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Assertions;
 
 public class MainActivity extends AppCompatActivity implements ExoPlayer.EventListener {
 
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements ExoPlayer.EventLi
     private MediaSource mediaSource;
     private TrackSelection.Factory trackSelectionFactory;
     private SimpleExoPlayer player;
-    private final String streamUrl = "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-einws"; //bbc world service url
+    private final String uri = "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-einws"; //bbc world service url
     private TrackSelector trackSelector;
     PlayerControlView playerControlView;
 
@@ -55,23 +52,29 @@ public class MainActivity extends AppCompatActivity implements ExoPlayer.EventLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        playerControlView=findViewById(R.id.exo_controller);
-        PlayMusic();
+        playerControlView = findViewById(R.id.exo_controller);
 
 
 
+        CreateViewoPlayer();
+        player.prepare(createUrlMediaSource(uri));
+        playerControlView.setPlayer(player);
+        player.setPlayWhenReady(false);
+        playerControlView.setShowTimeoutMs(0);
     }
 
-    private void PlayMusic() {
 
+    public void CreateViewoPlayer() {
         renderersFactory = new DefaultRenderersFactory(getApplicationContext());
-        bandwidthMeter = new DefaultBandwidthMeter();
-        trackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
         trackSelector = new DefaultTrackSelector(trackSelectionFactory);
         loadControl = new DefaultLoadControl();
         player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl);
         player.addListener(this);
+    }
 
+
+
+    private MediaSource createUrlMediaSource(String streamUrl) {
         dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), "ExoplayerDemo");
         extractorsFactory = new DefaultExtractorsFactory();
         mainHandler = new Handler();
@@ -80,12 +83,8 @@ public class MainActivity extends AppCompatActivity implements ExoPlayer.EventLi
                 extractorsFactory,
                 mainHandler,
                 null);
-        playerControlView.setPlayer(player);
-        player.setPlayWhenReady(false);
-        player.prepare(mediaSource);
-       playerControlView.setShowTimeoutMs(0);
+        return mediaSource;
     }
-
 
 
     @Override
@@ -103,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements ExoPlayer.EventLi
     }
 
 
+
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
 
@@ -110,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements ExoPlayer.EventLi
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
 
 
     }
